@@ -11,4 +11,3 @@ void main() {
     onGenerateRoute: router.generateRoute,
 ));
 }
-

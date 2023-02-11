@@ -10,6 +10,7 @@ import 'package:fitness_ui_kit/widget/water_intake_timeline.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:line_icons/line_icons.dart';
+import 'package:pedometer/pedometer.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -18,6 +19,57 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  late Stream<StepCount> _stepCountStream;
+  late Stream<PedestrianStatus> _pedestrianStatusStream;
+  String _status = '?', _steps = '?';
+
+  @override
+  void initState() {
+    super.initState();
+    initPlatformState();
+  }
+
+  void initPlatformState() {
+    _pedestrianStatusStream = Pedometer.pedestrianStatusStream;
+    _pedestrianStatusStream
+        .listen(onPedestrianStatusChanged)
+        .onError(onPedestrianStatusError);
+
+    _stepCountStream = Pedometer.stepCountStream;
+    _stepCountStream.listen(onStepCount).onError(onStepCountError);
+
+    if (!mounted) return;
+  }
+
+  void onStepCount(StepCount event) {
+    print(event);
+    setState(() {
+      _steps = event.steps.toString();
+    });
+  }
+
+  void onPedestrianStatusChanged(PedestrianStatus event) {
+    print(event);
+    setState(() {
+      _status = event.status;
+    });
+  }
+
+  void onPedestrianStatusError(error) {
+    print('onPedestrianStatusError: $error');
+    setState(() {
+      _status = 'Pedestrian Status not available';
+    });
+    print(_status);
+  }
+
+  void onStepCountError(error) {
+    print('onStepCountError: $error');
+    setState(() {
+      _steps = 'Step Count not available';
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -27,6 +79,24 @@ class _HomePageState extends State<HomePage> {
 
   Widget getBody() {
     var size = MediaQuery.of(context).size;
+    const workouts = [
+      'Chest',
+      'Shoulders',
+      'Back',
+      'Arms',
+      'Core',
+      'Legs',
+      'Glutes'
+    ];
+    const images = [
+      'assets/icon/chest.png',
+      'assets/icon/shoulder.png',
+      'assets/icon/back.png',
+      'assets/icon/arm.png',
+      'assets/icon/core.png',
+      'assets/icon/legs.png',
+      'assets/icon/gluts.png'
+    ];
     return SingleChildScrollView(
       child: SafeArea(
         child: Padding(
@@ -67,6 +137,86 @@ class _HomePageState extends State<HomePage> {
                     ),
                   )
                 ],
+              ),
+              SizedBox(
+                height: 30,
+              ),
+              Container(
+                //Top container for the step counter
+                width: double.infinity,
+                height: 145,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(30),
+                  gradient: LinearGradient(colors: [secondary, primary]),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Row(
+                    children: [
+                      Flexible(
+                        child: Container(
+                          width: (size.width),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                "Step Counter",
+                                style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                    color: white),
+                              ),
+                              Text(
+                                "Your goal is not reached yet",
+                                style: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w400,
+                                    color: white),
+                              ),
+                              Container(
+                                width: 95,
+                                height: 35,
+                                decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                        colors: [fourthColor, thirdColor]),
+                                    borderRadius: BorderRadius.circular(20)),
+                                child: Center(
+                                  child: Text(
+                                    "View More",
+                                    style:
+                                        TextStyle(fontSize: 13, color: white),
+                                  ),
+                                ),
+                              )
+                            ],
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        width: 20,
+                      ),
+                      Container(
+                        width: 100,
+                        height: 100,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient:
+                              LinearGradient(colors: [fourthColor, thirdColor]),
+                        ),
+                        child: Center(
+                          child: Text(
+                            _steps,
+                            style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: white),
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
               ),
               SizedBox(
                 height: 30,
@@ -147,9 +297,36 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
               ),
-              SizedBox(
+                            SizedBox(
                 height: 30,
               ),
+              Text(
+                "Workouts",
+                style: TextStyle(
+                    fontSize: 18, fontWeight: FontWeight.bold, color: black),
+              ),
+              SizedBox(
+                height: 150,
+                child: ListView.separated(
+                    separatorBuilder: (context, index) {
+                      return SizedBox(width: 20);
+                    },
+                    scrollDirection: Axis.horizontal,
+                    itemCount: 6,
+                    itemBuilder: (context, index) {
+                      return Column(
+                        children: [
+                          SizedBox(
+                              height: 120,
+                              child: Image.asset(images[index], width: 100)),
+                          Text(workouts[index],
+                              style: TextStyle(
+                                  fontSize: 14, fontWeight: FontWeight.bold))
+                        ],
+                      );
+                    }),
+              ),
+
               Container(
                 width: double.infinity,
                 height: 60,
@@ -169,7 +346,7 @@ class _HomePageState extends State<HomePage> {
                             fontWeight: FontWeight.w600),
                       ),
                       InkWell(
-                        onTap: (){
+                        onTap: () {
                           Navigator.pushNamed(context, "/today_target_detail");
                         },
                         child: Container(
@@ -437,7 +614,7 @@ class _HomePageState extends State<HomePage> {
               SizedBox(
                 height: 30,
               ),
-               Row(
+              Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
@@ -447,10 +624,11 @@ class _HomePageState extends State<HomePage> {
                         fontWeight: FontWeight.bold,
                         color: black),
                   ),
-                   Text(
-                          "See more",
-                          style: TextStyle(fontSize: 15, color: black.withOpacity(0.5)),
-                        ),
+                  Text(
+                    "See more",
+                    style:
+                        TextStyle(fontSize: 15, color: black.withOpacity(0.5)),
+                  ),
                 ],
               ),
               SizedBox(
@@ -461,91 +639,95 @@ class _HomePageState extends State<HomePage> {
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 20),
                     child: Container(
-                width: double.infinity,
-                decoration: BoxDecoration(
-                    color: white,
-                    boxShadow: [
-                      BoxShadow(
-                        color: black.withOpacity(0.01),
-                        spreadRadius: 20,
-                        blurRadius: 10,
-                        offset:Offset(0, 10)
-                      )
-                    ],
-                    borderRadius: BorderRadius.circular(12)
-                ),
-                child: Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 50,
-                          height: 50,
-                          decoration: BoxDecoration(
-                            image: DecorationImage(image: AssetImage(latestWorkoutJson[index]['img']))
-                          ),
-                        ),
-                        SizedBox(width: 15,),
-                        Flexible(
-                          child: Container(
-                            height: 55,
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(latestWorkoutJson[index]['title'],style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight:FontWeight.bold
-                                ),),
-                                Text(latestWorkoutJson[index]['description'],style: TextStyle(
-                                  fontSize: 13,
-                                  color: black.withOpacity(0.5)
-                                ),),
-                                Stack(
-                                  children:[
-                                    Container(
-                                      width: size.width,
-                                      height: 10,
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(30),
-                                        color: bgTextField
-                                      ),
-                                    ),
-                                    Container(
-                                      width: size.width*(latestWorkoutJson[index]['progressBar']),
-                                      height: 10,
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(30),
-                                        gradient: LinearGradient(colors: [
-                                          primary, secondary
-                                        ])
-                                      ),
-                                    )
-                                  ]
-                                )
-                              ],
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                          color: white,
+                          boxShadow: [
+                            BoxShadow(
+                                color: black.withOpacity(0.01),
+                                spreadRadius: 20,
+                                blurRadius: 10,
+                                offset: Offset(0, 10))
+                          ],
+                          borderRadius: BorderRadius.circular(12)),
+                      child: Padding(
+                        padding: const EdgeInsets.all(20),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 50,
+                              height: 50,
+                              decoration: BoxDecoration(
+                                  image: DecorationImage(
+                                      image: AssetImage(
+                                          latestWorkoutJson[index]['img']))),
                             ),
-                          ),
+                            SizedBox(
+                              width: 15,
+                            ),
+                            Flexible(
+                              child: Container(
+                                height: 55,
+                                child: Column(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      latestWorkoutJson[index]['title'],
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                    Text(
+                                      latestWorkoutJson[index]['description'],
+                                      style: TextStyle(
+                                          fontSize: 13,
+                                          color: black.withOpacity(0.5)),
+                                    ),
+                                    Stack(children: [
+                                      Container(
+                                        width: size.width,
+                                        height: 10,
+                                        decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(30),
+                                            color: bgTextField),
+                                      ),
+                                      Container(
+                                        width: size.width *
+                                            (latestWorkoutJson[index]
+                                                ['progressBar']),
+                                        height: 10,
+                                        decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(30),
+                                            gradient: LinearGradient(
+                                                colors: [primary, secondary])),
+                                      )
+                                    ])
+                                  ],
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              width: 15,
+                            ),
+                            Container(
+                              width: 20,
+                              height: 20,
+                              decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(color: primary)),
+                              child: Center(
+                                child: Icon(Icons.arrow_forward_ios,
+                                    size: 11, color: primary),
+                              ),
+                            ),
+                          ],
                         ),
-                        SizedBox(width: 15,),
-                        Container(
-                          width: 20,
-                          height: 20,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: primary
-                            )
-                          ),
-                          child: Center(
-                            child: Icon(Icons.arrow_forward_ios,size:11,color:primary),
-                          ),
-                        ),
-
-                      ],
+                      ),
                     ),
-                ),
-              ),
                   );
                 }),
               )

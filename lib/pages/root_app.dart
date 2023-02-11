@@ -2,7 +2,7 @@ import 'package:fitness_ui_kit/pages/home_page.dart';
 import 'package:fitness_ui_kit/theme/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:line_icons/line_icons.dart';
-
+import 'package:fitness_ui_kit/pages/music_page.dart';
 class RootApp extends StatefulWidget {
   const RootApp({Key? key}) : super(key: key);
 
@@ -28,9 +28,7 @@ class _RootAppState extends State<RootApp> {
         Center(
           child: Text("Chart"),
         ),
-        Center(
-          child: Text("Camera"),
-        ),
+        MusicPage(),
         Center(
           child: Text("Profile"),
         ),
@@ -42,7 +40,7 @@ class _RootAppState extends State<RootApp> {
     List items = [
       LineIcons.home,
       LineIcons.pieChart,
-      LineIcons.camera,
+      LineIcons.music,
       LineIcons.user
     ];
     return Container(
