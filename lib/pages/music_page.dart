@@ -1,3 +1,5 @@
+import 'package:audioplayers/audioplayers.dart';
+import 'package:fitness_ui_kit/pages/music_screens/relax.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -45,14 +47,14 @@ class _MusicPageState extends State<MusicPage> {
               ])
             ],
           ),
-          musiccard('Relaxing Music','assets/music/relaxing.png'),
-          musiccard('Gym Music','assets/music/gym.png'),
-          musiccard('Jogging Music','assets/music/jogging.png')
+          musiccard('Relaxing Music','assets/music/relaxing.png','https://adornflow.com/songs/Starboy.mp3'),
+          musiccard('Gym Music','assets/music/gym.png','https://adornflow.com/songs/ConCalma.mp3'),
+          musiccard('Jogging Music','assets/music/jogging.png','https://adornflow.com/songs/Bailando.mp3')
         ]),
       )),
     );
   }
-  Widget musiccard(musictype,imagepath)=>Card(
+  Widget musiccard(musictype,imagepath,String audiourl)=>Card(
     clipBehavior: Clip.antiAlias,
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(24),
@@ -66,7 +68,9 @@ class _MusicPageState extends State<MusicPage> {
           height: 240,
           fit: BoxFit.cover,
           child: InkWell(
-            onTap: (){},
+            onTap: (){
+              Navigator.push(context, MaterialPageRoute(builder: (context) => Music(audioUrl: audiourl)),);
+            },
           ),
         ),
         Text(musictype,
