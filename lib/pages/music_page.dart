@@ -61,6 +61,7 @@ class _MusicPageState extends State<MusicPage> {
       alignment: Alignment.center,
       children: [
         Ink.image(
+          
           image: AssetImage(imagepath),
           height: 240,
           fit: BoxFit.cover,

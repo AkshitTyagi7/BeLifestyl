@@ -66,7 +66,7 @@ class _HomePageState extends State<HomePage> {
   void onStepCountError(error) {
     print('onStepCountError: $error');
     setState(() {
-      _steps = 'Step Count not available';
+      _steps = '?';
     });
   }
 
@@ -297,14 +297,41 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
               ),
-                            SizedBox(
+              SizedBox(
                 height: 30,
               ),
-              Text(
-                "Workouts",
-                style: TextStyle(
-                    fontSize: 18, fontWeight: FontWeight.bold, color: black),
-              ),
+Column(
+  mainAxisSize: MainAxisSize.min,
+  crossAxisAlignment: CrossAxisAlignment.stretch,
+  children: [
+    Stack(
+      alignment: Alignment.center,
+      children: [
+        Align(
+          alignment: Alignment.topLeft,
+          child: Text('Workouts',                        style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: black),
+                      ),
+          
+          ),
+        Align(
+          alignment: Alignment.centerRight,
+          child: GestureDetector(
+            onTap: () {
+              Navigator.pushNamed(context, '/workouts');
+            },
+            child: Text('View more',
+            style: TextStyle(color: Colors.blueAccent),
+            ),
+          ),
+          
+        )
+      ],
+    ),
+  ],
+),
               SizedBox(
                 height: 150,
                 child: ListView.separated(
@@ -326,7 +353,6 @@ class _HomePageState extends State<HomePage> {
                       );
                     }),
               ),
-
               Container(
                 width: double.infinity,
                 height: 60,
